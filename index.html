@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Ping Pong Classic</title>
+<meta name="description" content="Jogo de ping pong retrô, jogável direto no navegador. Contra a máquina ou 2 jogadores no mesmo teclado." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22white%22/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="crt">
+  <header class="title-bar">
+    <h1>PING PONG <span>CLASSIC</span></h1>
+  </header>
+
+  <main id="app">
+
+    <!-- MENU: escolher modo -->
+    <section id="screen-menu" class="screen active">
+      <p class="subtitle">Escolha o modo de jogo</p>
+      <div class="menu-options">
+        <button class="btn" data-mode="cpu">1 JOGADOR<br /><small>vs Máquina</small></button>
+        <button class="btn" data-mode="2p">2 JOGADORES<br /><small>Mesmo teclado</small></button>
+      </div>
+      <p class="hint">Use as teclas para jogar. Sem login, sem instalação.</p>
+    </section>
+
+    <!-- SETUP: nomes e dificuldade -->
+    <section id="screen-setup" class="screen">
+      <p class="subtitle" id="setup-title">Configurar partida</p>
+
+      <form id="setup-form">
+        <label class="field">
+          <span>Nome Jogador 1 (W / S)</span>
+          <input type="text" id="p1-name" maxlength="12" placeholder="Jogador 1" autocomplete="off" />
+        </label>
+
+        <label class="field" id="p2-field">
+          <span>Nome Jogador 2 (↑ / ↓)</span>
+          <input type="text" id="p2-name" maxlength="12" placeholder="Jogador 2" autocomplete="off" />
+        </label>
+
+        <div class="field" id="difficulty-field">
+          <span>Dificuldade</span>
+          <div class="difficulty-options">
+            <button type="button" class="btn small" data-difficulty="easy">FÁCIL</button>
+            <button type="button" class="btn small selected" data-difficulty="medium">MÉDIO</button>
+            <button type="button" class="btn small" data-difficulty="hard">DIFÍCIL</button>
+          </div>
+        </div>
+
+        <div class="setup-actions">
+          <button type="button" class="btn ghost" id="btn-back-menu">VOLTAR</button>
+          <button type="submit" class="btn" id="btn-start">COMEÇAR</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- JOGO -->
+    <section id="screen-game" class="screen">
+      <div class="hud">
+        <div class="hud-side">
+          <span class="hud-name" id="hud-p1-name">JOGADOR 1</span>
+          <span class="hud-score" id="hud-p1-score">0</span>
+        </div>
+        <div class="hud-level" id="hud-level"></div>
+        <div class="hud-side right">
+          <span class="hud-score" id="hud-p2-score">0</span>
+          <span class="hud-name" id="hud-p2-name">JOGADOR 2</span>
+        </div>
+      </div>
+
+      <canvas id="canvas" width="800" height="500"></canvas>
+
+      <p class="hint">ESC pausa / volta ao menu</p>
+
+      <div id="pause-overlay" class="overlay hidden">
+        <p>PAUSADO</p>
+        <button class="btn" id="btn-resume">CONTINUAR</button>
+        <button class="btn ghost" id="btn-quit">SAIR PARA O MENU</button>
+      </div>
+    </section>
+
+    <!-- FIM DE JOGO -->
+    <section id="screen-gameover" class="screen">
+      <p class="subtitle">FIM DE JOGO</p>
+      <p class="winner" id="winner-text">Jogador venceu!</p>
+      <p class="final-score" id="final-score">0 x 0</p>
+      <div class="setup-actions">
+        <button class="btn ghost" id="btn-gameover-menu">MENU</button>
+        <button class="btn" id="btn-gameover-again">JOGAR NOVAMENTE</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>Ping Pong Classic — código aberto no GitHub</span>
+  </footer>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
