@@ -2,7 +2,7 @@
 
 Jogo de ping pong retrô, jogável direto do navegador — sem login, sem instalação.
 
-**Jogar agora:** _(link do GitHub Pages será adicionado aqui após o primeiro deploy)_
+**Jogar agora:** https://fau009.github.io/ping-pong-classic/
 
 ## Como jogar
 
