@@ -66,6 +66,9 @@
   let lastTime = 0;
 
   const keys = new Set();
+  const joy = { 1: 0, 2: 0 };          // posição de cada joystick de toque: -1 (cima) a 1 (baixo)
+  const JOY_SPEED = 8.5;                // velocidade máxima da raquete com o joystick no limite
+  const JOY_DEADZONE = 0.12;
 
   const paddle1 = { x: 24, y: CANVAS_H / 2 - PADDLE_H / 2, w: PADDLE_W, h: PADDLE_H };
   const paddle2 = { x: CANVAS_W - 24 - PADDLE_W, y: CANVAS_H / 2 - PADDLE_H / 2, w: PADDLE_W, h: PADDLE_H };
@@ -78,7 +81,58 @@
   function showScreen(name) {
     Object.values(screens).forEach((s) => s.classList.remove("active"));
     screens[name].classList.add("active");
+    document.body.classList.toggle("playing", name === "game");
   }
+
+  // ---------- Controles de toque ----------
+  // Aparecem sozinhos em celular/tablet (ou ao primeiro toque na tela). No computador nada muda.
+  let touchMode = false;
+  function setTouchMode(on) {
+    if (touchMode === on) return;
+    touchMode = on;
+    document.body.classList.toggle("touch", on);
+    document.querySelectorAll("[data-txt-toque]").forEach((el) => {
+      el.textContent = on ? el.dataset.txtToque : el.dataset.txtTeclado;
+    });
+  }
+  setTouchMode(window.matchMedia("(hover: none) and (pointer: coarse)").matches);
+  window.addEventListener("pointerdown", (e) => { if (e.pointerType === "touch") setTouchMode(true); }, { capture: true });
+
+  function setupJoystick(el, id) {
+    const track = el.querySelector(".joy-track");
+    const knob = el.querySelector(".joy-knob");
+    let pointer = null;
+    const moveTo = (clientY) => {
+      const r = track.getBoundingClientRect();
+      const travel = (r.height - knob.offsetHeight) / 2;
+      const dy = clamp(clientY - (r.top + r.height / 2), -travel, travel);
+      knob.style.transform = `translateY(${dy}px)`;
+      const v = travel ? dy / travel : 0;
+      joy[id] = Math.abs(v) < JOY_DEADZONE ? 0 : v;
+    };
+    const release = (e) => {
+      if (e.pointerId !== pointer) return;
+      pointer = null;
+      joy[id] = 0;
+      knob.style.transform = "";
+      el.classList.remove("active");
+    };
+    el.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      pointer = e.pointerId;
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+      el.classList.add("active");
+      moveTo(e.clientY);
+    });
+    el.addEventListener("pointermove", (e) => { if (e.pointerId === pointer) { e.preventDefault(); moveTo(e.clientY); } });
+    el.addEventListener("pointerup", release);
+    el.addEventListener("pointercancel", release);
+    el.addEventListener("lostpointercapture", release);
+    el.addEventListener("contextmenu", (e) => e.preventDefault());
+  }
+  setupJoystick(document.getElementById("joy1"), 1);
+  setupJoystick(document.getElementById("joy2"), 2);
+  document.getElementById("btn-pause").addEventListener("click", togglePause);
 
   document.querySelectorAll("[data-mode]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -133,6 +187,10 @@
 
   // ---------- Match lifecycle ----------
   function startMatch() {
+    document.body.classList.toggle("mode-cpu", mode === "cpu");
+    document.getElementById("joy1-label").textContent = match.p1Name.toUpperCase();
+    document.getElementById("joy2-label").textContent = match.p2Name.toUpperCase();
+    joy[1] = joy[2] = 0;
     match.score1 = 0;
     match.score2 = 0;
     level = 0;
@@ -177,6 +235,7 @@
     if (!running) return;
     paused = !paused;
     pauseOverlay.classList.toggle("hidden", !paused);
+    if (paused) { joy[1] = joy[2] = 0; }
     if (!paused) {
       lastTime = performance.now();
       animationId = requestAnimationFrame(loop);
@@ -244,12 +303,14 @@
     // Paddle 1 (sempre humano): W / S
     if (keys.has("KeyW")) paddle1.y -= PLAYER_PADDLE_SPEED * step;
     if (keys.has("KeyS")) paddle1.y += PLAYER_PADDLE_SPEED * step;
+    paddle1.y += joy[1] * JOY_SPEED * step;
     paddle1.y = clamp(paddle1.y, 0, CANVAS_H - PADDLE_H);
 
     // Paddle 2: humano (2P) ou CPU
     if (mode === "2p") {
       if (keys.has("ArrowUp")) paddle2.y -= PLAYER_PADDLE_SPEED * step;
       if (keys.has("ArrowDown")) paddle2.y += PLAYER_PADDLE_SPEED * step;
+      paddle2.y += joy[2] * JOY_SPEED * step;
       paddle2.y = clamp(paddle2.y, 0, CANVAS_H - PADDLE_H);
     } else {
       updateCpu(step);
@@ -372,6 +433,11 @@
       animationId = requestAnimationFrame(loop);
     }
   }
+
+  // No celular, trocar de app ou bloquear a tela pausa a partida.
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && running && !paused) togglePause();
+  });
 
   // Estado inicial
   showScreen("menu");

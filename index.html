@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 <title>Ping Pong Classic</title>
 <meta name="description" content="Jogo de ping pong retrô, jogável direto no navegador. Contra a máquina ou 2 jogadores no mesmo teclado." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22white%22/></svg>" />
@@ -28,9 +28,9 @@
       <p class="subtitle">Escolha o modo de jogo</p>
       <div class="menu-options">
         <button class="btn" data-mode="cpu">1 JOGADOR<br /><small>vs Máquina</small></button>
-        <button class="btn" data-mode="2p">2 JOGADORES<br /><small>Mesmo teclado</small></button>
+        <button class="btn" data-mode="2p">2 JOGADORES<br /><small data-txt-teclado="Mesmo teclado" data-txt-toque="Mesmo celular">Mesmo teclado</small></button>
       </div>
-      <p class="hint">Use as teclas para jogar. Sem login, sem instalação.</p>
+      <p class="hint" data-txt-teclado="Use as teclas para jogar. Sem login, sem instalação." data-txt-toque="Use os joysticks na tela para jogar. Sem login, sem instalação.">Use as teclas para jogar. Sem login, sem instalação.</p>
       <p class="app-links" data-app-links></p>
     </section>
 
@@ -40,12 +40,12 @@
 
       <form id="setup-form">
         <label class="field">
-          <span>Nome Jogador 1 (W / S)</span>
+          <span data-txt-teclado="Nome Jogador 1 (W / S)" data-txt-toque="Nome Jogador 1 (joystick esquerdo)">Nome Jogador 1 (W / S)</span>
           <input type="text" id="p1-name" maxlength="12" placeholder="Jogador 1" autocomplete="off" />
         </label>
 
         <label class="field" id="p2-field">
-          <span>Nome Jogador 2 (↑ / ↓)</span>
+          <span data-txt-teclado="Nome Jogador 2 (↑ / ↓)" data-txt-toque="Nome Jogador 2 (joystick direito)">Nome Jogador 2 (↑ / ↓)</span>
           <input type="text" id="p2-name" maxlength="12" placeholder="Jogador 2" autocomplete="off" />
         </label>
 
@@ -72,16 +72,29 @@
           <span class="hud-name" id="hud-p1-name">JOGADOR 1</span>
           <span class="hud-score" id="hud-p1-score">0</span>
         </div>
-        <div class="hud-level" id="hud-level"></div>
+        <div class="hud-mid">
+          <span class="hud-level" id="hud-level"></span>
+          <button class="pause-btn" id="btn-pause" type="button" aria-label="Pausar">II</button>
+        </div>
         <div class="hud-side right">
           <span class="hud-score" id="hud-p2-score">0</span>
           <span class="hud-name" id="hud-p2-name">JOGADOR 2</span>
         </div>
       </div>
 
-      <canvas id="canvas" width="800" height="500"></canvas>
+      <div class="arena">
+        <div class="joy" id="joy1" data-joy="1" aria-label="Joystick do jogador 1">
+          <div class="joy-track"><div class="joy-knob"></div></div>
+          <span class="joy-label" id="joy1-label">P1</span>
+        </div>
+        <canvas id="canvas" width="800" height="500"></canvas>
+        <div class="joy" id="joy2" data-joy="2" aria-label="Joystick do jogador 2">
+          <div class="joy-track"><div class="joy-knob"></div></div>
+          <span class="joy-label" id="joy2-label">P2</span>
+        </div>
+      </div>
 
-      <p class="hint">ESC pausa / volta ao menu</p>
+      <p class="hint" id="game-hint" data-txt-teclado="ESC pausa / volta ao menu" data-txt-toque="Arraste o joystick para cima e para baixo · gire o celular para jogar melhor">ESC pausa / volta ao menu</p>
 
       <div id="pause-overlay" class="overlay hidden">
         <p>PAUSADO</p>

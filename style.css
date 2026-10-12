@@ -270,6 +270,67 @@ h1 span {
   padding-top: 8px;
 }
 
+/* ---------- Controles de toque (celular e tablet) ---------- */
+html, body { overscroll-behavior: none; }
+.hud-mid { display: flex; align-items: center; gap: 10px; }
+.pause-btn {
+  display: none; font-family: var(--font); font-size: 10px; letter-spacing: 2px;
+  background: transparent; color: var(--fg); border: 2px solid #555; padding: 8px 10px; cursor: pointer;
+}
+.pause-btn:active { background: #333; }
+.arena { width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.joy { display: none; }
+
+body.touch .pause-btn { display: inline-block; }
+body.touch .arena {
+  max-width: none; display: grid; gap: 12px 16px; align-items: center; justify-items: center;
+  grid-template-columns: 1fr 1fr; grid-template-areas: "tela tela" "j1 j2";
+}
+body.touch #canvas { grid-area: tela; }
+body.touch .joy {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+  padding: 6px 18px; /* área de toque maior que o desenho */
+}
+body.touch #joy1 { grid-area: j1; justify-self: start; }
+body.touch #joy2 { grid-area: j2; justify-self: end; }
+body.touch.mode-cpu #joy2 { display: none; }
+body.touch.mode-cpu #joy1 { grid-column: 1 / -1; justify-self: center; }
+.joy-track {
+  position: relative; width: 68px; height: clamp(150px, 34vh, 270px);
+  border: 2px solid #444; background: repeating-linear-gradient(0deg, #0b0b0b 0 6px, #111 6px 12px);
+}
+.joy-track::before, .joy-track::after {
+  content: ""; position: absolute; left: 50%; translate: -50% 0; border: 7px solid transparent; opacity: .55;
+}
+.joy-track::before { top: 6px; border-bottom-color: var(--accent); border-top-width: 0; }
+.joy-track::after { bottom: 6px; border-top-color: var(--accent); border-bottom-width: 0; }
+.joy-knob {
+  position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; translate: -50% -50%;
+  background: var(--accent); box-shadow: 0 0 12px var(--accent), inset 0 -5px 0 rgba(0,0,0,.25);
+  transition: transform .12s ease-out;
+}
+.joy.active .joy-knob { transition: none; }
+.joy.active .joy-track { border-color: var(--accent); }
+.joy-label { font-size: 8px; color: #888; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Durante a partida no celular: tela cheia para o jogo */
+body.touch.playing { padding: 8px max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
+body.touch.playing .title-bar, body.touch.playing .footer { display: none; }
+body.touch.playing #screen-game { gap: 10px; }
+body.touch.playing .hint { font-size: 7px; line-height: 1.6; }
+
+/* Celular deitado: joysticks nas laterais, mesa no centro */
+@media (orientation: landscape) {
+  body.touch .arena { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "j1 tela j2"; gap: 12px; }
+  body.touch #joy1, body.touch #joy2 { justify-self: center; }
+  body.touch.mode-cpu #joy1 { grid-column: auto; }
+  body.touch.mode-cpu #joy2 { display: flex; visibility: hidden; }
+  body.touch.playing #canvas { width: auto; max-width: 100%; height: calc(100dvh - 92px); }
+  body.touch .joy-track { height: min(60vh, 220px); }
+  body.touch.playing #game-hint { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
